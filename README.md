@@ -15,7 +15,7 @@ const app = new Koa();
 const router = new Router()
 
 router.get(
-    "hello/:id",
+    "/hello/:id",
     validate({
       query: {
         q: Joi.string().required()
@@ -23,9 +23,11 @@ router.get(
       params: {
         id: Joi.string().required()
       },
-      headers:{
-        'Content-Type': Joi.string().valid(["application/json", "application/javascript"])
-      }
+      headers: {
+        "Content-Type": Joi.string()
+          .valid("application/json", "application/javascript")
+          .required()
+      },
       200: {
         succuss: Joi.bool()
       }
