@@ -1,0 +1,36 @@
+{
+  "name": "koa-validator",
+  "version": "1.0.0",
+  "description": "Koa input/output validation middleware",
+  "main": "lib/",
+  "scripts": {
+    "dev": "nodemon --exec babel-node src/",
+    "build": "babel src --out-dir lib --source-maps",
+    "start": "npm run build && node lib/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "koa",
+    "validation",
+    "input",
+    "output",
+    "joi"
+  ],
+  "author": "Faisal KANOUT",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/joi": "^16.1.8"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
+    "@babel/node": "^7.7.4",
+    "@babel/preset-env": "^7.7.6",
+    "nodemon": "^2.0.2"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  }
+}
