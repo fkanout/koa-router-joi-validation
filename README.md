@@ -4,7 +4,7 @@ Koa input/output validation middleware
 
 # Usage
 
-```
+```javascript
 import Koa from "koa";
 import Router from "@koa/router";
 
