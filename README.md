@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/fkanout/koa-validator.svg?branch=master)](https://travis-ci.org/fkanout/koa-validator)
 [![codecov](https://codecov.io/gh/fkanout/koa-validator/branch/master/graph/badge.svg)](https://codecov.io/gh/fkanout/koa-validator)
 [![Maintainability](https://api.codeclimate.com/v1/badges/8232d29278c06901cd50/maintainability)](https://codeclimate.com/github/fkanout/koa-validator/maintainability)
+[![David deps](https://img.shields.io/david/fkanout/koa-validator.svg?style=flat-square)](https://codeclimate.com/github/fkanout/koa-validator)
 
 Koa input/output validation middleware
 
