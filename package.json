@@ -1,6 +1,6 @@
 {
-  "name": "koa-io-validator",
-  "version": "1.0.2",
+  "name": "koa-joi-validator",
+  "version": "1.0.0",
   "description": "Koa input/output validation middleware",
   "main": "lib/",
   "scripts": {
@@ -24,10 +24,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/fkanout/koa-io-validator.git"
+    "url": "git://github.com/fkanout/koa-joi-validator.git"
   },
   "bugs": {
-    "url": "https://github.com/fkanout/koa-io-validator/issues"
+    "url": "https://github.com/fkanout/koa-joi-validator/issues"
   },
   "homepage": "https://github.com/koajs/body-parser",
   "devDependencies": {

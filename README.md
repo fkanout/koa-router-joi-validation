@@ -1,4 +1,4 @@
-# koa-io-validator
+# koa-joi-validator
 
 ![npm](https://img.shields.io/npm/v/koa-io-validator)
 ![node](https://img.shields.io/node/v/koa-io-validator)
@@ -9,6 +9,8 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/fkanout/koa-io-validator/badge.svg?targetFile=package.json)](https://snyk.io/test/github/fkanout/koa-io-validator?targetFile=package.json)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/koa-io-validator)
 ![NPM](https://img.shields.io/npm/l/koa-io-validator)
+
+[![NPM](https://nodei.co/npm/koa-io-validator.png)](https://npmjs.org/package/koa-io-validator)
 
 Koa input/output validation middleware
 
