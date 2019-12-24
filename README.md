@@ -1,4 +1,4 @@
-# koa-validator
+# koa-io-validator
 
 ![npm](https://img.shields.io/npm/v/koa-io-validator)
 ![node](https://img.shields.io/node/v/koa-io-validator)
