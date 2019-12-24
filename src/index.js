@@ -28,7 +28,6 @@ export default inputs => {
         await Joi.object(inputs[ctx.status]).validateAsync(ctx.body);
       }
     } catch (error) {
-      // console.log(error);
       ctx.throw(400, error);
     }
   };
