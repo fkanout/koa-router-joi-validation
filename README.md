@@ -1,4 +1,4 @@
-# koa-joi-validator
+# koa-router-joi-validation
 
 ![npm](https://img.shields.io/npm/v/koa-io-validator)
 ![node](https://img.shields.io/node/v/koa-io-validator)
@@ -12,16 +12,14 @@
 
 [![NPM](https://nodei.co/npm/koa-io-validator.png)](https://npmjs.org/package/koa-io-validator)
 
-Koa input/output validation middleware
+Koa input/output validation middleware for Koa router
 
 # Usage
 
 ```javascript
 import Koa from "koa";
 import Router from "@koa/router";
-import validate from ('koa-validator');
-
-import Joi from "@hapi/joi"; // Required
+import validate, { Joi } from ('koa-router-joi-validation');
 
 const app = new Koa();
 const router = new Router()

@@ -1,4 +1,5 @@
 import Joi from "@hapi/joi";
+export { Joi } from "@hapi/joi";
 export default inputs => {
   return async (ctx, next) => {
     try {

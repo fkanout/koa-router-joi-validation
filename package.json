@@ -1,7 +1,7 @@
 {
-  "name": "koa-joi-validator",
-  "version": "1.0.0",
-  "description": "Koa input/output validation middleware",
+  "name": "koa-router-joi-validation",
+  "version": "1.0.1",
+  "description": "Koa input/output validation middleware for Koa router",
   "main": "lib/",
   "scripts": {
     "dev": "nodemon --exec babel-node src/",
@@ -11,6 +11,9 @@
   },
   "keywords": [
     "koa",
+    "router",
+    "validator",
+    "middleware",
     "validation",
     "input",
     "output",
@@ -24,12 +27,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/fkanout/koa-joi-validator.git"
+    "url": "git://github.com/fkanout/koa-router-joi-validation.git"
   },
   "bugs": {
-    "url": "https://github.com/fkanout/koa-joi-validator/issues"
+    "url": "https://github.com/fkanout/koa-router-joi-validation/issues"
   },
-  "homepage": "https://github.com/koajs/body-parser",
+  "homepage": "https://github.com/koajs/koa-router-joi-validation",
   "devDependencies": {
     "@babel/cli": "^7.7.5",
     "@babel/core": "^7.7.5",
