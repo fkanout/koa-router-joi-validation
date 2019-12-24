@@ -254,7 +254,7 @@ describe("Koa-Validator", function() {
     });
   });
 
-  describe("[output]", async () => {
+  describe("[OUTPUT]", async () => {
     before(async () => {
       const router = new Router();
       router.get("/output", async (ctx, next) => {
@@ -327,6 +327,93 @@ describe("Koa-Validator", function() {
       });
       assert.deepEqual(status, 200);
       assert.deepEqual(data.success, true);
+    });
+
+    after(() => {
+      return new Promise((resolve, reject) => {
+        server.close(() => resolve());
+      });
+    });
+  });
+
+  describe("[CONFIG]", async () => {
+    before(async () => {
+      const router = new Router();
+      router.post(
+        "/config",
+        validator({
+          query: {
+            q: Joi.string().required()
+          },
+          headers: {
+            accept: Joi.string().required(),
+            "content-type": Joi.string().required()
+          },
+          body: {
+            success: Joi.bool().required()
+          },
+          200: {
+            success: Joi.boolean().required()
+          },
+          config: {
+            denyUnknown: ["query", "headers", "body"]
+          }
+        }),
+        async (ctx, next) => {
+          ctx.body = {
+            success: "true"
+          };
+          await next();
+        }
+      );
+      app.use(bodyParser());
+      app.use(router.routes());
+      server = await new Promise((resolve, reject) => {
+        _server = http.createServer(app.callback());
+        _server.listen(3001, () => resolve(_server));
+      });
+    });
+
+    it("should fail when pass unknown query", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/config?q=string&unknown=hi",
+          data: { success: true },
+          headers: { "x-unknown-header": true, accept: "application/json", "content-type": "application/json" }
+        });
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, `"unknown" is not allowed`);
+      }
+    });
+
+    it("should fail when pass unknown header", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/config?q=string",
+          data: { success: true },
+          headers: { "x-unknown-header": true, accept: "application/json", "content-type": "application/json" }
+        });
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, `"x-unknown-header" is not allowed`);
+      }
+    });
+
+    it("should fail when pass unknown body", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/config?q=string",
+          data: { unknownBody: true, success: true },
+          headers: { "x-unknown-header": true, accept: "application/json", "content-type": "application/json" }
+        });
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, `"unknownBody" is not allowed`);
+      }
     });
 
     after(() => {
