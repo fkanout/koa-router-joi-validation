@@ -22,6 +22,14 @@
     "@babel/runtime": "^7.7.7",
     "@hapi/joi": "^16.1.8"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fkanout/koa-io-validator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fkanout/koa-io-validator/issues"
+  },
+  "homepage": "https://github.com/koajs/body-parser",
   "devDependencies": {
     "@babel/cli": "^7.7.5",
     "@babel/core": "^7.7.5",
@@ -53,6 +61,6 @@
     ]
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=8.x"
   }
 }
