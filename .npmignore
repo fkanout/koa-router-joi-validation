@@ -1,0 +1,34 @@
+# Directories #
+###############
+build/
+src/
+node_modules/
+coverage/
+.nyc_output/
+test/
+
+# Node.js #
+###########
+.npmignore
+/node_modules/
+.npmignore
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Git #
+#######
+.git*
+
+# Utilities #
+#############
+.travis.yml
