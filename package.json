@@ -1,6 +1,6 @@
 {
-  "name": "koa-validator",
-  "version": "1.0.0",
+  "name": "koa-io-validator",
+  "version": "1.0.1",
   "description": "Koa input/output validation middleware",
   "main": "lib/",
   "scripts": {
@@ -51,5 +51,8 @@
     "plugins": [
       "@babel/plugin-transform-runtime"
     ]
+  },
+  "engines": {
+    "node": ">=8.0.0"
   }
 }

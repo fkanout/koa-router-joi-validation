@@ -10,6 +10,7 @@ test/
 ###########
 .npmignore
 /node_modules/
+/lib/*.map
 
 # OS generated files #
 ######################
@@ -31,3 +32,4 @@ Desktop.ini
 #############
 .travis.yml
 .codeclimate.yml
+CODE_OF_CONDUCT.md
