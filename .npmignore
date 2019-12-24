@@ -1,6 +1,5 @@
 # Directories #
 ###############
-build/
 src/
 node_modules/
 coverage/
@@ -11,7 +10,6 @@ test/
 ###########
 .npmignore
 /node_modules/
-.npmignore
 
 # OS generated files #
 ######################
@@ -32,3 +30,4 @@ Desktop.ini
 # Utilities #
 #############
 .travis.yml
+.codeclimate.yml
