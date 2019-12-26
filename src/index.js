@@ -4,7 +4,7 @@ export default inputs => {
   const { query, params, body, headers, config } = inputs;
 
   if (config !== undefined && Object.prototype.toString.call(config) !== "[object Object]") {
-    throw ({ message: `Route config, expecting config to be an Object` });
+    throw { message: `Route config, expecting config to be an Object` };
   }
 
   const _config = {
@@ -46,6 +46,7 @@ export default inputs => {
     } catch (error) {
       if (_config.nextOnError) {
         ctx.state.routeValidationError = error;
+        await next();
       } else {
         ctx.throw(_config.httpErrorCode, error);
       }

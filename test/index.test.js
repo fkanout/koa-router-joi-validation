@@ -366,6 +366,22 @@ describe("koa-router-joi-validation", function() {
           await next();
         }
       );
+
+      router.get(
+        "/config/next",
+        validator({
+          query: {
+            q: Joi.string().required()
+          },
+          config: {
+            nextOnError: true
+          }
+        }),
+        async (ctx, next) => {
+          ctx.body = ctx.state.routeValidationError;
+        }
+      );
+
       app.use(bodyParser());
       app.use(router.routes());
       server = await new Promise((resolve, reject) => {
@@ -414,6 +430,12 @@ describe("koa-router-joi-validation", function() {
         assert.deepEqual(error.response.status, 400);
         assert.deepEqual(error.response.data, `"unknownBody" is not allowed`);
       }
+    });
+
+    it("should fail without throw an 400. Error should be in 'ctx.state.routeValidationError'", async () => {
+      const { status, data } = await axios("http://localhost:3001/config/next");
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.details[0].message, '"q" is required');
     });
 
     after(() => {
