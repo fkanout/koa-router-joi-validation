@@ -1,5 +1,14 @@
 import Joi from "@hapi/joi";
 export { Joi } from "@hapi/joi";
+
+const handleErrorWithSource = async (source, fn) => {
+  try {
+    await fn;
+  } catch (error) {
+    error.source = source;
+    throw error;
+  }
+};
 export default inputs => {
   const { query, params, body, headers, config } = inputs;
 
@@ -17,36 +26,45 @@ export default inputs => {
   return async (ctx, next) => {
     try {
       if (query) {
-        await Joi.object(query)
-          .unknown(!_config.denyUnknown.includes("query"))
-          .validateAsync(ctx.query);
+        await handleErrorWithSource(
+          "query",
+          Joi.object(query)
+            .unknown(!_config.denyUnknown.includes("query"))
+            .validateAsync(ctx.query)
+        );
       }
       if (params) {
-        await Joi.object(params).validateAsync(ctx.params);
+        await handleErrorWithSource("params", Joi.object(params).validateAsync(ctx.params));
       }
       if (body) {
-        await Joi.object(body)
-          .unknown(!_config.denyUnknown.includes("body"))
-          .validateAsync(ctx.request.body);
+        await handleErrorWithSource(
+          "body",
+          Joi.object(body)
+            .unknown(!_config.denyUnknown.includes("body"))
+            .validateAsync(ctx.request.body)
+        );
       }
       if (headers) {
         const headersLowered = Object.keys(headers).reduce((destination, key) => {
           destination[key.toLowerCase()] = headers[key];
           return destination;
         }, {});
-        await Joi.object(headersLowered)
-          .unknown(!_config.denyUnknown.includes("headers"))
-          .validateAsync(ctx.headers);
+        await handleErrorWithSource(
+          "headers",
+          Joi.object(headersLowered)
+            .unknown(!_config.denyUnknown.includes("headers"))
+            .validateAsync(ctx.headers)
+        );
       }
       await next();
       // Output validator
       if (inputs[ctx.status]) {
-        await Joi.object(inputs[ctx.status]).validateAsync(ctx.body);
+        await handleErrorWithSource("output", Joi.object(inputs[ctx.status]).validateAsync(ctx.body));
       }
     } catch (error) {
       if (_config.nextOnError) {
         ctx.state.routeValidationError = error;
-        await next();
+        if (error.source !== "output") await next();
       } else {
         ctx.throw(_config.httpErrorCode, error);
       }
