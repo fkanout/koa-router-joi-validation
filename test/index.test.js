@@ -366,9 +366,8 @@ describe("koa-router-joi-validation", function() {
           await next();
         }
       );
-
       router.get(
-        "/config/next",
+        "/config/next/input",
         validator({
           query: {
             q: Joi.string().required()
@@ -379,6 +378,22 @@ describe("koa-router-joi-validation", function() {
         }),
         async (ctx, next) => {
           ctx.body = ctx.state.routeValidationError;
+        }
+      );
+      router.get(
+        "/config/next/output",
+        validator({
+          200: {
+            success: Joi.bool().required()
+          },
+          config: {
+            nextOnError: true
+          }
+        }),
+        async (ctx, next) => {
+          ctx.body = {
+            success: "string"
+          };
         }
       );
 
@@ -431,11 +446,16 @@ describe("koa-router-joi-validation", function() {
         assert.deepEqual(error.response.data, `"unknownBody" is not allowed`);
       }
     });
-
-    it("should fail without throw an 400. Error should be in 'ctx.state.routeValidationError'", async () => {
-      const { status, data } = await axios("http://localhost:3001/config/next");
+    it("should fail without throw an 400. Error should be in 'ctx.state.routeValidationError' - INPUT'", async () => {
+      const { status, data } = await axios("http://localhost:3001/config/next/input");
+      // console.log(data);
       assert.deepEqual(status, 200);
       assert.deepEqual(data.details[0].message, '"q" is required');
+    });
+    it("should fail without throw an 400. Error should be in 'ctx.state.routeValidationError' - OUTPUT", async () => {
+      const { status, data } = await axios("http://localhost:3001/config/next/output");
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "string");
     });
 
     after(() => {
@@ -456,7 +476,7 @@ describe("koa-router-joi-validation", function() {
             200: {
               success: Joi.boolean().required()
             },
-            config: ["string"]
+            config: ["wrongConfigType"]
           }),
           async (ctx, next) => {
             ctx.body = {
