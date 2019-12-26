@@ -8,7 +8,7 @@ const Koa = require("koa");
 const bodyParser = require("koa-bodyparser");
 const app = new Koa();
 
-describe("Koa-Validator", function() {
+describe("koa-router-joi-validation", function() {
   describe("QUERY", function() {
     before(async () => {
       const router = new Router();
@@ -420,6 +420,38 @@ describe("Koa-Validator", function() {
       return new Promise((resolve, reject) => {
         server.close(() => resolve());
       });
+    });
+  });
+
+  describe("[CONFIG-RUNTIME]", () => {
+    it("should throw an error at runtime when config is not an object", async () => {
+      let server;
+      try {
+        const router = new Router();
+        router.get(
+          "/config/wrongConfig",
+          validator({
+            200: {
+              success: Joi.boolean().required()
+            },
+            config: ["string"]
+          }),
+          async (ctx, next) => {
+            ctx.body = {
+              success: "true"
+            };
+            await next();
+          }
+        );
+        app.use(bodyParser());
+        app.use(router.routes());
+        server = await new Promise((resolve, reject) => {
+          _server = http.createServer(app.callback());
+          _server.listen(3001, () => resolve(_server));
+        });
+      } catch (error) {
+        assert.deepEqual(error.message, "Route config, expecting config to be an Object");
+      }
     });
   });
 });

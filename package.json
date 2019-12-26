@@ -1,13 +1,13 @@
 {
   "name": "koa-router-joi-validation",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Koa input/output validation middleware for Koa router",
   "main": "lib/",
   "scripts": {
     "dev": "nodemon --exec babel-node src/",
     "build": "babel src --out-dir lib --source-maps",
     "start": "npm run build && node lib/",
-    "test": "nyc mocha test/ --timeout 10000"
+    "test": "npm run build && nyc mocha test/ --timeout 10000"
   },
   "keywords": [
     "koa",

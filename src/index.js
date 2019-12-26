@@ -2,10 +2,10 @@ import Joi from "@hapi/joi";
 export { Joi } from "@hapi/joi";
 export default inputs => {
   const { query, params, body, headers, config } = inputs;
-  if (config !== undefined && typeof config !== "object" && !Array.isArray(config)) {
-    throw new Error(`Route config, expecting object but found ${typeof config}`);
+
+  if (config !== undefined && Object.prototype.toString.call(config) !== "[object Object]") {
+    throw ({ message: `Route config, expecting config to be an Object` });
   }
-  console.log(typeof config);
 
   const _config = {
     denyUnknown: [],
