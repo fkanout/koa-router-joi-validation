@@ -11,9 +11,100 @@
 
 [![NPM](https://nodei.co/npm/koa-router-joi-validation.png)](https://npmjs.org/package/koa-router-joi-validation)
 
-Koa input/output validation middleware for Koa router
+⚡️Super Light, configurable Koa router validator middleware that uses [Joi](https://www.npmjs.com/package/@hapi/joi).⚡️
+
+# Install
+
+`npm install koa-router-joi-validation -S`
+
+# Why
+
+- It uses [Joi](https://www.npmjs.com/package/@hapi/joi) (_The most powerful schema description language and data validator for JavaScript._)
+- Input validation (`query`, `params`, `body`, `headers`).
+- Output validation, based on the HTTP returned code from the router `200`, `204` ...etc.
+- Configurable.
+- It does only one thing (**validation**) and it does it right.
+- Loose coupling with `koa-router`, means:
+  - Built-for `koa-router` and NOT [`koa-router` Built-in].
+  - Standard routes function signature.
+  - Clean changelog (it always concerns the package it self).
+  - No unnecessary updates when only one package needs to be updated.
+  - Always have access to `await next()`
+  - Tiny codebase (**<4kB**)
+  - **100%** 🔥 test coverage.
 
 # Usage
+
+The middleware function takes an object as argument
+
+```javascript
+import validate, { Joi } from ('koa-router-joi-validation');
+.....
+    validate({
+      query: // Joi schema object
+      body: // Joi schema object
+      params: // Joi schema object
+      headers: // Joi schema object
+      200: // Joi schema object
+      503: // Joi schema object
+      .....
+      config: {
+        denyUnknown: [],
+        httpErrorCode: 400,
+        nextOnError: false,
+      }
+    }),
+.....
+```
+
+# `validate(object)`
+
+## The object contains the next keys:
+
+| Key      |       Type        | Validates          | Note                                                                                     |
+| -------- | :---------------: | ------------------ | ---------------------------------------------------------------------------------------- |
+| query    | Joi Schema Object | `ctx.query`        |                                                                                          |
+| params   | Joi Schema Object | `ctx.params`       |                                                                                          |
+| headers  | Joi Schema Object | `ctx.headers`      |                                                                                          |
+| body     | Joi Schema Object | `ctx.request.body` | ⚠️ use a body parser e.g. [koa-bodyparser](https://www.npmjs.com/package/koa-bodyparser) |
+| 200..503 | Joi SchemaObject  | `ctx.body`         | when `ctx.status` === 200..503                                                           |
+| config   |      Object       |                    | Use it to change the validator behavior:                                                 |
+
+## `config`
+
+- #### `denyUnknown`
+
+  allow/disallow undeclared values in the schema
+
+  **Type** `array`.
+
+  **default** [].
+
+  e.g. `denyUnknown["headers"]` the request fail ONLY if all the headers entries are declared in schema.
+
+#
+
+- #### `httpErrorCode`
+
+  The returned http error code when the validation fails
+
+  **Type** `int` HTTP code (`400`... `503`)
+
+  **default** `400` (Bad request)
+
+#
+
+- #### `nextOnError`
+
+  If `true`, the validator will not throw an error and the execution flow will continue (`await next()`)
+
+  ⚠️ Note: in that case the validation error will be found in `ctx.state.routeValidationError`
+
+  **Type** `bool`
+
+  **default** `false`
+
+# Example
 
 ```javascript
 import Koa from "koa";
@@ -51,3 +142,11 @@ router.get(
 
 app.use(router.routes());
 ```
+
+# Licences
+
+## [MIT](https://github.com/fkanout/koa-router-joi-validation/blob/master/LICENSE)
+
+# Keywords
+
+## [Koa](https://www.npmjs.com/package/koa), [@Koa/router](https://www.npmjs.com/package/@koa/router), [Joi](https://www.npmjs.com/package/@hapi/joi)
