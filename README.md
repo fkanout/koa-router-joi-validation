@@ -72,7 +72,7 @@ import validate, { Joi } from ('koa-router-joi-validation');
 
 ## `config`
 
-- #### `denyUnknown`
+- `denyUnknown`
 
   allow/disallow undeclared values in the schema
 
@@ -84,7 +84,7 @@ import validate, { Joi } from ('koa-router-joi-validation');
 
 #
 
-- #### `httpErrorCode`
+- `httpErrorCode`
 
   The returned http error code when the validation fails
 
@@ -94,7 +94,7 @@ import validate, { Joi } from ('koa-router-joi-validation');
 
 #
 
-- #### `nextOnError`
+- `nextOnError`
 
   If `true`, the validator will not throw an error and the execution flow will continue (`await next()`)
 
@@ -145,8 +145,4 @@ app.use(router.routes());
 
 # Licences
 
-## [MIT](https://github.com/fkanout/koa-router-joi-validation/blob/master/LICENSE)
-
-# Keywords
-
-## [Koa](https://www.npmjs.com/package/koa), [@Koa/router](https://www.npmjs.com/package/@koa/router), [Joi](https://www.npmjs.com/package/@hapi/joi)
+### [MIT](https://github.com/fkanout/koa-router-joi-validation/blob/master/LICENSE)
