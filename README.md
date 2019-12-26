@@ -2,12 +2,11 @@
 
 ![npm](https://img.shields.io/npm/v/koa-router-joi-validation)
 ![node](https://img.shields.io/node/v/koa-router-joi-validation)
-[![Build Status](https://travis-ci.org/fkanout/koa-validator.svg?branch=master)](https://travis-ci.org/fkanout/koa-validator)
-[![codecov](https://codecov.io/gh/fkanout/koa-validator/branch/master/graph/badge.svg)](https://codecov.io/gh/fkanout/koa-validator)
-[![Maintainability](https://api.codeclimate.com/v1/badges/8232d29278c06901cd50/maintainability)](https://codeclimate.com/github/fkanout/koa-validator/maintainability)
-[![David deps](https://img.shields.io/david/fkanout/koa-validator.svg?style=flat)](https://codeclimate.com/github/fkanout/koa-validator)
+[![Build Status](https://travis-ci.org/fkanout/koa-router-joi-validation.svg?branch=master)](https://travis-ci.org/fkanout/koa-router-joi-validation)
+[![codecov](https://codecov.io/gh/fkanout/koa-router-joi-validation/branch/master/graph/badge.svg)](https://codecov.io/gh/fkanout/koa-router-joi-validation)
+[![Maintainability](https://api.codeclimate.com/v1/badges/067dde32d2ff6107cc68/maintainability)](https://codeclimate.com/github/fkanout/koa-router-joi-validation/maintainability)
+[![David deps](https://img.shields.io/david/fkanout/koa-router-joi-validation.svg?style=flat)](https://codeclimate.com/github/fkanout/koa-router-joi-validation)
 [![Known Vulnerabilities](https://snyk.io/test/github/fkanout/koa-router-joi-validation/badge.svg?targetFile=package.json)](https://snyk.io/test/github/fkanout/koa-router-joi-validation?targetFile=package.json)
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/koa-router-joi-validation)
 ![NPM](https://img.shields.io/npm/l/koa-router-joi-validation)
 
 [![NPM](https://nodei.co/npm/koa-router-joi-validation.png)](https://npmjs.org/package/koa-router-joi-validation)
