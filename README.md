@@ -27,10 +27,9 @@
 - Loose coupling with `koa-router`, means:
   - Built-for `koa-router` and NOT [`koa-router` Built-in].
   - Standard routes function signature.
-  - Clean changelog (it always concerns the package it self).
-  - No unnecessary updates when only one package needs to be updated.
-  - Always have access to `await next()`
-  - Tiny codebase (**<4kB**)
+  - Clean changelog and No unnecessary updates (it always concerns the package itself).
+  - Always have access to `await next()`.
+  - Tiny codebase.
   - **100%** 🔥 test coverage.
 
 # Usage
