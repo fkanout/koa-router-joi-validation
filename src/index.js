@@ -1,5 +1,5 @@
 import Joi from "@hapi/joi";
-export { Joi } from "@hapi/joi";
+export { default as Joi } from "@hapi/joi";
 
 const handleErrorWithSource = async (source, fn) => {
   try {
