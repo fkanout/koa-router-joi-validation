@@ -30,7 +30,7 @@
   - Clean changelog and No unnecessary updates (it always concerns the package itself).
   - Always have access to `await next()`.
   - Tiny codebase.
-  - **100%** 🔥 test coverage.
+- **100%** 🔥 test coverage.
 
 # Usage
 
