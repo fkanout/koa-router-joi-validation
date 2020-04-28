@@ -465,6 +465,124 @@ describe("koa-router-joi-validation", function() {
     });
   });
 
+  describe("[CONFIG] alternate", async () => {
+    before(async () => {
+      const router = new Router();
+      router.post(
+        "/alternate",
+        validator({
+          query: {
+            q: Joi.string().required()
+          },
+          headers: {
+            accept: Joi.string().required(),
+            "content-type": Joi.string().required()
+          },
+          body: {
+            success: Joi.boolean().required()
+          },
+          200: {
+            success: Joi.boolean().required()
+          },
+          config: {
+            alternate: ["query", "body"]
+          }
+        }),
+        async (ctx, next) => {
+          ctx.body = {
+            success: "true"
+          };
+          await next();
+        }
+      );
+      router.get(
+        "/alternate/next/:valid",
+        validator({
+          params: {
+            valid: Joi.number()
+              .integer()
+              .positive()
+              .required()
+          },
+          headers: {
+            accept: Joi.string().required(),
+            "content-type": Joi.string().required()
+          },
+          config: {
+            alternate: ["headers", "params"]
+          }
+        }),
+        async (ctx, next) => {
+          ctx.body = {
+            success: "true"
+          };
+        }
+      );
+
+      app.use(bodyParser());
+      app.use(router.routes());
+      server = await new Promise((resolve, reject) => {
+        _server = http.createServer(app.callback());
+        _server.listen(3001, () => resolve(_server));
+      });
+    });
+
+    it("should fail when neither body and query params are passed correctly", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/alternate?unknown=hi",
+          data: { unknown: true },
+          headers: { "x-unknown-header": true, accept: "application/json", "content-type": "application/json" }
+        });
+      } catch (error) {
+        console.log(error.response.data)
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, '"query.q" is required');
+      }
+    });
+
+    it("should succed when one of query or body is correct", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/alternate?q=hi",
+        data: { success: true },
+        headers: { "x-unknown-header": true, accept: "application/json", "content-type": "application/json" }
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, 'true');
+    });
+
+    it("should fail when neither params and headers are passed correctly", async () => {
+      try {
+        await axios({
+          method: "GET",
+          url: "http://localhost:3001/alternate/next/notStringValue",
+          headers: { "x-unknown-header": true }
+        });
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, '"params.valid" must be a number');
+      }
+    });
+
+    it("should succed when one of params and headers are passed correctly", async () => {
+      const { status, data } = await axios({
+          method: "GET",
+          url: "http://localhost:3001/alternate/next/10",
+          headers: { "x-unknown-header": true }
+        });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, 'true');
+    });
+
+    after(() => {
+      return new Promise((resolve, reject) => {
+        server.close(() => resolve());
+      });
+    });
+  });
+
   describe("[CONFIG-RUNTIME]", () => {
     it("should throw an error at runtime when config is not an object", async () => {
       let server;
