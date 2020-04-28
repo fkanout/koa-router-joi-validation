@@ -46,7 +46,7 @@ export default inputs => {
 
   return async (ctx, next) => {
     let alternateSchema = {};
-    let alternateData = [];
+    let alternateData = {};
 
     if (_config.alternate.includes('query')) {
       alternateSchema = { query, ...alternateSchema };
