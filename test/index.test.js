@@ -448,7 +448,7 @@ describe("koa-router-joi-validation", function() {
     });
     it("should fail without throw an 400. Error should be in 'ctx.state.routeValidationError' - INPUT'", async () => {
       const { status, data } = await axios("http://localhost:3001/config/next/input");
-      // console.log(data);
+
       assert.deepEqual(status, 200);
       assert.deepEqual(data.details[0].message, '"q" is required');
     });
@@ -536,7 +536,7 @@ describe("koa-router-joi-validation", function() {
           headers: { "x-unknown-header": true, accept: "application/json", "content-type": "application/json" }
         });
       } catch (error) {
-        console.log(error.response.data)
+
         assert.deepEqual(error.response.status, 400);
         assert.deepEqual(error.response.data, '"query.q" is required');
       }
