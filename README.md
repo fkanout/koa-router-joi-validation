@@ -107,7 +107,7 @@ import validate, { Joi } from ('koa-router-joi-validation');
 
 - `alternate`
 
-  Allows alternative validation in the schema
+  Allows alternative validation in the schema. It is a wrapper of Joi's [alternatives](https://hapi.dev/module/joi/api/?v=17.1.1#alternatives) function.
 
   **Type** `array`.
 
