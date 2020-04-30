@@ -11,7 +11,9 @@ const alternativeValidation = async (alternate, schema, values) => {
           .try({
             ...schema
           })
-          .validateAsync(values[v])
+          .validateAsync(values[v], {
+            allowUnknown: true
+          })
       );
       return; // returning after first validation succeed
     } catch (err) {

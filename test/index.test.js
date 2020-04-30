@@ -582,7 +582,37 @@ describe("koa-router-joi-validation", function() {
       }
     });
 
-    it("should succed when one of query or body is correct", async () => {
+    it("should succeed when query is correct", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/alternate?q=hi",
+        data: { unknown: true },
+        headers: {
+          "x-unknown-header": true,
+          accept: "application/json",
+          "content-type": "application/json"
+        }
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "true");
+    });
+
+    it("should succeed when body is correct", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/alternate?unknown=hi",
+        data: { success: true },
+        headers: {
+          "x-unknown-header": true,
+          accept: "application/json",
+          "content-type": "application/json"
+        }
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "true");
+    });
+
+    it("should succeed when both body and query are correct", async () => {
       const { status, data } = await axios({
         method: "POST",
         url: "http://localhost:3001/alternate?q=hi",
@@ -613,11 +643,31 @@ describe("koa-router-joi-validation", function() {
       }
     });
 
-    it("should succed when one of params and headers are passed correctly", async () => {
+    it("should succeed when params is correct", async () => {
       const { status, data } = await axios({
         method: "GET",
         url: "http://localhost:3001/alternate/next/10",
-        headers: { "x-unknown-header": true }
+        headers: {}
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "true");
+    });
+
+    it("should succeed when headers is correct", async () => {
+      const { status, data } = await axios({
+        method: "GET",
+        url: "http://localhost:3001/alternate/next/-1",
+        headers: { "content-type": "someContentType" }
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "true");
+    });
+
+    it("should succeed when both headers and params are correct", async () => {
+      const { status, data } = await axios({
+        method: "GET",
+        url: "http://localhost:3001/alternate/next/1",
+        headers: { "content-type": "someContentType" }
       });
       assert.deepEqual(status, 200);
       assert.deepEqual(data.success, "true");
