@@ -1,8 +1,11 @@
 import Joi from "@hapi/joi";
 export { default as Joi } from "@hapi/joi";
 
-const alternativeValidation = async (alternate, schema, values) => {
-  let error;
+const alternativeValidation = async (alternate, schema, values, config) => {
+  let errorMsg = "";
+  let _original = {};
+  let details = [];
+
   for (const v in values) {
     try {
       await handleErrorWithSource(
@@ -12,16 +15,23 @@ const alternativeValidation = async (alternate, schema, values) => {
             ...schema
           })
           .validateAsync(values[v], {
-            allowUnknown: true
+            allowUnknown: !config.denyUnknown.includes(v)
           })
       );
       return; // returning after first validation succeed
     } catch (err) {
-      error = err;
+      errorMsg += `${err.message}; `;
+      _original[v] = err._original[v];
+      details = [...details, ...err.details];
     }
   }
-  // throwing last error
-  // TODO: should we fabricate our custom error indicating about failing alternatives and combining all errors messages?
+
+  const error = new Error(errorMsg.trim());
+  error.name = "ValidationError";
+  error.source = alternate;
+  error.details = details;
+  error._original = _original;
+
   throw error;
 };
 
@@ -122,7 +132,8 @@ export default inputs => {
         await alternativeValidation(
           _config.alternate,
           alternateSchema,
-          alternateData
+          alternateData,
+          _config
         );
       }
 

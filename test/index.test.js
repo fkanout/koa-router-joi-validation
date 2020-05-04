@@ -578,7 +578,10 @@ describe("koa-router-joi-validation", function() {
         });
       } catch (error) {
         assert.deepEqual(error.response.status, 400);
-        assert.deepEqual(error.response.data, '"query.q" is required');
+        assert.deepEqual(
+          error.response.data,
+          '"body.success" is required; "query.q" is required;'
+        );
       }
     });
 
@@ -638,7 +641,7 @@ describe("koa-router-joi-validation", function() {
         assert.deepEqual(error.response.status, 400);
         assert.deepEqual(
           error.response.data,
-          '"params.valid" must be a number'
+          '"headers.content-type" is required; "params.valid" must be a number;'
         );
       }
     });
