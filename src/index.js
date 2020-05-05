@@ -12,10 +12,10 @@ const alternativeValidation = async (alternate, schema, values, config) => {
         alternate,
         Joi.alternatives()
           .try({
-            ...schema
+            ...schema,
           })
           .validateAsync(values[v], {
-            allowUnknown: !config.denyUnknown.includes(v)
+            allowUnknown: !config.denyUnknown.includes(v),
           })
       );
       return; // returning after first validation succeed
@@ -43,7 +43,7 @@ const handleErrorWithSource = async (source, fn) => {
     throw error;
   }
 };
-export default inputs => {
+export default (inputs) => {
   const { query, params, body, headers, config } = inputs;
 
   if (
@@ -66,7 +66,7 @@ export default inputs => {
     httpErrorCode: 400,
     nextOnError: false,
     alternate: [],
-    ...config
+    ...config,
   };
 
   return async (ctx, next) => {
