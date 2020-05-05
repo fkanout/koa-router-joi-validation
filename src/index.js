@@ -53,6 +53,14 @@ export default inputs => {
     throw { message: `Route config, expecting config to be an Object` };
   }
 
+  if (config && config.alternate && !Array.isArray(config.alternate)) {
+    throw { message: `Config's alternate option should be an array` };
+  }
+
+  if (config && config.denyUnknown && !Array.isArray(config.denyUnknown)) {
+    throw { message: `Config's denyUnknown option should be an array` };
+  }
+
   const _config = {
     denyUnknown: [],
     httpErrorCode: 400,

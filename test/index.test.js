@@ -502,6 +502,72 @@ describe("koa-router-joi-validation", function() {
     });
   });
 
+  describe("[CONFIG] incorrect initialization", () => {
+    it("Should throw an error if config's alternate is not an array", async () => {
+      try {
+        const router = new Router();
+        router.post(
+          "/config",
+          validator({
+            config: {
+              alternate: "notAnArray"
+            }
+          }),
+          async (ctx, next) => {
+            ctx.body = {
+              success: "true"
+            };
+            await next();
+          }
+        );
+        app.use(bodyParser());
+        app.use(router.routes());
+        server = await new Promise(resolve => {
+          _server = http.createServer(app.callback());
+          _server.listen(3001, () => resolve(_server));
+        });
+      } catch (error) {
+        assert.ok(error);
+        assert.deepEqual(
+          error.message,
+          "Config's alternate option should be an array"
+        );
+      }
+    });
+
+    it("Should throw an error if config's denyUnknown is not an array", async () => {
+      try {
+        const router = new Router();
+        router.post(
+          "/config",
+          validator({
+            config: {
+              denyUnknown: "notAnArray"
+            }
+          }),
+          async (ctx, next) => {
+            ctx.body = {
+              success: "true"
+            };
+            await next();
+          }
+        );
+        app.use(bodyParser());
+        app.use(router.routes());
+        server = await new Promise(resolve => {
+          _server = http.createServer(app.callback());
+          _server.listen(3001, () => resolve(_server));
+        });
+      } catch (error) {
+        assert.ok(error);
+        assert.deepEqual(
+          error.message,
+          "Config's denyUnknown option should be an array"
+        );
+      }
+    });
+  });
+
   describe("[CONFIG] alternate", async () => {
     before(async () => {
       const router = new Router();
