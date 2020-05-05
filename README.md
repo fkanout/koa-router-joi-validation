@@ -51,6 +51,7 @@ import validate, { Joi } from ('koa-router-joi-validation');
         denyUnknown: [],
         httpErrorCode: 400,
         nextOnError: false,
+        alternate: []
       }
     }),
 .....
