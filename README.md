@@ -103,6 +103,18 @@ import validate, { Joi } from ('koa-router-joi-validation');
 
   **default** `false`
 
+#
+
+- `alternate`
+
+  Allows alternative validation in the schema. It is a wrapper of Joi's [alternatives](https://hapi.dev/module/joi/api/?v=17.1.1#alternatives) function.
+
+  **Type** `array`.
+
+  **default** [].
+
+  e.g. `alternate["body", "query"]` alternative validation will be applied on the request's `query` and `body` parameters. The request fails if both are incorrect. If any parameter from the list succeed the validation, request will pass and continue the execution flow.
+
 # Example
 
 ```javascript

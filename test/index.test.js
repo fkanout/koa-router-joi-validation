@@ -8,6 +8,9 @@ const Koa = require("koa");
 const bodyParser = require("koa-bodyparser");
 const app = new Koa();
 
+let server;
+let _server;
+
 describe("koa-router-joi-validation", function() {
   describe("QUERY", function() {
     before(async () => {
@@ -18,15 +21,19 @@ describe("koa-router-joi-validation", function() {
         };
         await next();
       });
-      router.get("/test/2", validator({ query: { q: Joi.bool().required() } }), async (ctx, next) => {
-        ctx.body = {
-          success: true
-        };
-        await next();
-      });
+      router.get(
+        "/test/2",
+        validator({ query: { q: Joi.bool().required() } }),
+        async (ctx, next) => {
+          ctx.body = {
+            success: true
+          };
+          await next();
+        }
+      );
 
       app.use(router.routes());
-      server = await new Promise((resolve, reject) => {
+      server = await new Promise(resolve => {
         _server = http.createServer(app.callback());
         _server.listen(3001, () => resolve(_server));
       });
@@ -54,12 +61,14 @@ describe("koa-router-joi-validation", function() {
       }
     });
     it("should pass to route handler when the schema does match passed query string", async () => {
-      const { status, data } = await axios("http://localhost:3001/test/2?q=true");
+      const { status, data } = await axios(
+        "http://localhost:3001/test/2?q=true"
+      );
       assert.deepEqual(status, 200);
       assert.deepEqual(data.success, true);
     });
     after(() => {
-      return new Promise((resolve, reject) => {
+      return new Promise(resolve => {
         server.close(() => resolve());
       });
     });
@@ -92,7 +101,7 @@ describe("koa-router-joi-validation", function() {
         }
       );
       app.use(router.routes());
-      server = await new Promise((resolve, reject) => {
+      server = await new Promise(resolve => {
         _server = http.createServer(app.callback());
         _server.listen(3001, () => resolve(_server));
       });
@@ -107,11 +116,14 @@ describe("koa-router-joi-validation", function() {
         await axios("http://localhost:3001/params/-200");
       } catch (error) {
         assert.deepEqual(error.response.status, 400);
-        assert.deepEqual(error.response.data, `"valid" must be a positive number`);
+        assert.deepEqual(
+          error.response.data,
+          `"valid" must be a positive number`
+        );
       }
     });
     after(() => {
-      return new Promise((resolve, reject) => {
+      return new Promise(resolve => {
         server.close(() => resolve());
       });
     });
@@ -137,7 +149,7 @@ describe("koa-router-joi-validation", function() {
       );
       app.use(bodyParser());
       app.use(router.routes());
-      server = await new Promise((resolve, reject) => {
+      server = await new Promise(resolve => {
         _server = http.createServer(app.callback());
         _server.listen(3001, () => resolve(_server));
       });
@@ -178,7 +190,7 @@ describe("koa-router-joi-validation", function() {
     });
 
     after(() => {
-      return new Promise((resolve, reject) => {
+      return new Promise(resolve => {
         server.close(() => resolve());
       });
     });
@@ -208,7 +220,7 @@ describe("koa-router-joi-validation", function() {
         }
       );
       app.use(router.routes());
-      server = await new Promise((resolve, reject) => {
+      server = await new Promise(resolve => {
         _server = http.createServer(app.callback());
         _server.listen(3001, () => resolve(_server));
       });
@@ -232,7 +244,10 @@ describe("koa-router-joi-validation", function() {
         });
       } catch (error) {
         assert.deepEqual(error.response.status, 400);
-        assert.deepEqual(error.response.data, `"x-koa-validator" must be a boolean`);
+        assert.deepEqual(
+          error.response.data,
+          `"x-koa-validator" must be a boolean`
+        );
       }
     });
 
@@ -248,7 +263,7 @@ describe("koa-router-joi-validation", function() {
     });
 
     after(() => {
-      return new Promise((resolve, reject) => {
+      return new Promise(resolve => {
         server.close(() => resolve());
       });
     });
@@ -293,7 +308,7 @@ describe("koa-router-joi-validation", function() {
       );
 
       app.use(router.routes());
-      server = await new Promise((resolve, reject) => {
+      server = await new Promise(resolve => {
         _server = http.createServer(app.callback());
         _server.listen(3001, () => resolve(_server));
       });
@@ -316,7 +331,10 @@ describe("koa-router-joi-validation", function() {
         });
       } catch (error) {
         assert.deepEqual(error.response.status, 400);
-        assert.deepEqual(error.response.data, `"x-koa-validator" must be a boolean`);
+        assert.deepEqual(
+          error.response.data,
+          `"x-koa-validator" must be a boolean`
+        );
       }
     });
 
@@ -330,7 +348,7 @@ describe("koa-router-joi-validation", function() {
     });
 
     after(() => {
-      return new Promise((resolve, reject) => {
+      return new Promise(resolve => {
         server.close(() => resolve());
       });
     });
@@ -376,7 +394,7 @@ describe("koa-router-joi-validation", function() {
             nextOnError: true
           }
         }),
-        async (ctx, next) => {
+        async ctx => {
           ctx.body = ctx.state.routeValidationError;
         }
       );
@@ -390,7 +408,7 @@ describe("koa-router-joi-validation", function() {
             nextOnError: true
           }
         }),
-        async (ctx, next) => {
+        async ctx => {
           ctx.body = {
             success: "string"
           };
@@ -399,7 +417,7 @@ describe("koa-router-joi-validation", function() {
 
       app.use(bodyParser());
       app.use(router.routes());
-      server = await new Promise((resolve, reject) => {
+      server = await new Promise(resolve => {
         _server = http.createServer(app.callback());
         _server.listen(3001, () => resolve(_server));
       });
@@ -411,7 +429,11 @@ describe("koa-router-joi-validation", function() {
           method: "POST",
           url: "http://localhost:3001/config?q=string&unknown=hi",
           data: { success: true },
-          headers: { "x-unknown-header": true, accept: "application/json", "content-type": "application/json" }
+          headers: {
+            "x-unknown-header": true,
+            accept: "application/json",
+            "content-type": "application/json"
+          }
         });
       } catch (error) {
         assert.deepEqual(error.response.status, 400);
@@ -425,11 +447,18 @@ describe("koa-router-joi-validation", function() {
           method: "POST",
           url: "http://localhost:3001/config?q=string",
           data: { success: true },
-          headers: { "x-unknown-header": true, accept: "application/json", "content-type": "application/json" }
+          headers: {
+            "x-unknown-header": true,
+            accept: "application/json",
+            "content-type": "application/json"
+          }
         });
       } catch (error) {
         assert.deepEqual(error.response.status, 400);
-        assert.deepEqual(error.response.data, `"x-unknown-header" is not allowed`);
+        assert.deepEqual(
+          error.response.data,
+          `"x-unknown-header" is not allowed`
+        );
       }
     });
 
@@ -439,7 +468,11 @@ describe("koa-router-joi-validation", function() {
           method: "POST",
           url: "http://localhost:3001/config?q=string",
           data: { unknownBody: true, success: true },
-          headers: { "x-unknown-header": true, accept: "application/json", "content-type": "application/json" }
+          headers: {
+            "x-unknown-header": true,
+            accept: "application/json",
+            "content-type": "application/json"
+          }
         });
       } catch (error) {
         assert.deepEqual(error.response.status, 400);
@@ -447,19 +480,270 @@ describe("koa-router-joi-validation", function() {
       }
     });
     it("should fail without throw an 400. Error should be in 'ctx.state.routeValidationError' - INPUT'", async () => {
-      const { status, data } = await axios("http://localhost:3001/config/next/input");
-      // console.log(data);
+      const { status, data } = await axios(
+        "http://localhost:3001/config/next/input"
+      );
+
       assert.deepEqual(status, 200);
       assert.deepEqual(data.details[0].message, '"q" is required');
     });
     it("should fail without throw an 400. Error should be in 'ctx.state.routeValidationError' - OUTPUT", async () => {
-      const { status, data } = await axios("http://localhost:3001/config/next/output");
+      const { status, data } = await axios(
+        "http://localhost:3001/config/next/output"
+      );
       assert.deepEqual(status, 200);
       assert.deepEqual(data.success, "string");
     });
 
     after(() => {
-      return new Promise((resolve, reject) => {
+      return new Promise(resolve => {
+        server.close(() => resolve());
+      });
+    });
+  });
+
+  describe("[CONFIG] incorrect initialization", () => {
+    it("Should throw an error if config's alternate is not an array", async () => {
+      try {
+        const router = new Router();
+        router.post(
+          "/config",
+          validator({
+            config: {
+              alternate: "notAnArray"
+            }
+          }),
+          async (ctx, next) => {
+            ctx.body = {
+              success: "true"
+            };
+            await next();
+          }
+        );
+        app.use(bodyParser());
+        app.use(router.routes());
+        server = await new Promise(resolve => {
+          _server = http.createServer(app.callback());
+          _server.listen(3001, () => resolve(_server));
+        });
+      } catch (error) {
+        assert.ok(error);
+        assert.deepEqual(
+          error.message,
+          "Config's alternate option should be an array"
+        );
+      }
+    });
+
+    it("Should throw an error if config's denyUnknown is not an array", async () => {
+      try {
+        const router = new Router();
+        router.post(
+          "/config",
+          validator({
+            config: {
+              denyUnknown: "notAnArray"
+            }
+          }),
+          async (ctx, next) => {
+            ctx.body = {
+              success: "true"
+            };
+            await next();
+          }
+        );
+        app.use(bodyParser());
+        app.use(router.routes());
+        server = await new Promise(resolve => {
+          _server = http.createServer(app.callback());
+          _server.listen(3001, () => resolve(_server));
+        });
+      } catch (error) {
+        assert.ok(error);
+        assert.deepEqual(
+          error.message,
+          "Config's denyUnknown option should be an array"
+        );
+      }
+    });
+  });
+
+  describe("[CONFIG] alternate", async () => {
+    before(async () => {
+      const router = new Router();
+      router.post(
+        "/alternate",
+        validator({
+          query: {
+            q: Joi.string().required()
+          },
+          headers: {
+            accept: Joi.string().required(),
+            "content-type": Joi.string().required()
+          },
+          body: {
+            success: Joi.boolean().required()
+          },
+          200: {
+            success: Joi.boolean().required()
+          },
+          config: {
+            alternate: ["query", "body"]
+          }
+        }),
+        async (ctx, next) => {
+          ctx.body = {
+            success: "true"
+          };
+          await next();
+        }
+      );
+      router.get(
+        "/alternate/next/:valid",
+        validator({
+          params: {
+            valid: Joi.number()
+              .integer()
+              .positive()
+              .required()
+          },
+          headers: {
+            accept: Joi.string().required(),
+            "content-type": Joi.string().required()
+          },
+          config: {
+            alternate: ["headers", "params"]
+          }
+        }),
+        async ctx => {
+          ctx.body = {
+            success: "true"
+          };
+        }
+      );
+
+      app.use(bodyParser());
+      app.use(router.routes());
+      server = await new Promise(resolve => {
+        _server = http.createServer(app.callback());
+        _server.listen(3001, () => resolve(_server));
+      });
+    });
+
+    it("should fail when neither body and query params are passed correctly", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/alternate?unknown=hi",
+          data: { unknown: true },
+          headers: {
+            "x-unknown-header": true,
+            accept: "application/json",
+            "content-type": "application/json"
+          }
+        });
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(
+          error.response.data,
+          '"body.success" is required; "query.q" is required;'
+        );
+      }
+    });
+
+    it("should succeed when query is correct", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/alternate?q=hi",
+        data: { unknown: true },
+        headers: {
+          "x-unknown-header": true,
+          accept: "application/json",
+          "content-type": "application/json"
+        }
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "true");
+    });
+
+    it("should succeed when body is correct", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/alternate?unknown=hi",
+        data: { success: true },
+        headers: {
+          "x-unknown-header": true,
+          accept: "application/json",
+          "content-type": "application/json"
+        }
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "true");
+    });
+
+    it("should succeed when both body and query are correct", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/alternate?q=hi",
+        data: { success: true },
+        headers: {
+          "x-unknown-header": true,
+          accept: "application/json",
+          "content-type": "application/json"
+        }
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "true");
+    });
+
+    it("should fail when neither params and headers are passed correctly", async () => {
+      try {
+        await axios({
+          method: "GET",
+          url: "http://localhost:3001/alternate/next/notStringValue",
+          headers: { "x-unknown-header": true }
+        });
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(
+          error.response.data,
+          '"headers.content-type" is required; "params.valid" must be a number;'
+        );
+      }
+    });
+
+    it("should succeed when params is correct", async () => {
+      const { status, data } = await axios({
+        method: "GET",
+        url: "http://localhost:3001/alternate/next/10",
+        headers: {}
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "true");
+    });
+
+    it("should succeed when headers is correct", async () => {
+      const { status, data } = await axios({
+        method: "GET",
+        url: "http://localhost:3001/alternate/next/-1",
+        headers: { "content-type": "someContentType" }
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "true");
+    });
+
+    it("should succeed when both headers and params are correct", async () => {
+      const { status, data } = await axios({
+        method: "GET",
+        url: "http://localhost:3001/alternate/next/1",
+        headers: { "content-type": "someContentType" }
+      });
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, "true");
+    });
+
+    after(() => {
+      return new Promise(resolve => {
         server.close(() => resolve());
       });
     });
@@ -467,7 +751,6 @@ describe("koa-router-joi-validation", function() {
 
   describe("[CONFIG-RUNTIME]", () => {
     it("should throw an error at runtime when config is not an object", async () => {
-      let server;
       try {
         const router = new Router();
         router.get(
@@ -487,12 +770,15 @@ describe("koa-router-joi-validation", function() {
         );
         app.use(bodyParser());
         app.use(router.routes());
-        server = await new Promise((resolve, reject) => {
+        server = await new Promise(resolve => {
           _server = http.createServer(app.callback());
           _server.listen(3001, () => resolve(_server));
         });
       } catch (error) {
-        assert.deepEqual(error.message, "Route config, expecting config to be an Object");
+        assert.deepEqual(
+          error.message,
+          "Route config, expecting config to be an Object"
+        );
       }
     });
   });
