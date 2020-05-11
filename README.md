@@ -20,7 +20,9 @@
 # Why
 
 - It uses [Joi](https://www.npmjs.com/package/@hapi/joi) (_The most powerful schema description language and data validator for JavaScript._)
-- Input validation (`query`, `params`, `body`, `headers`).
+- Input validation 
+  - `query`, `params`, `body`, `headers` - each input part is validated separately.
+  - `schema` - validates all input together, should be used with more complex schemas as [Joi.when](https://hapi.dev/module/joi/api/?v=17.1.1#anywhencondition-options) or [Joi.alternatives](https://hapi.dev/module/joi/api/?v=17.1.1#alternatives).
 - Output validation, based on the HTTP returned code from the router `200`, `204` ...etc.
 - Configurable.
 - It does only one thing (**validation**) and it does it right.
@@ -40,12 +42,13 @@ The middleware function takes an object as argument
 import validate, { Joi } from ('koa-router-joi-validation');
 .....
     validate({
-      query: // Joi schema object
-      body: // Joi schema object
-      params: // Joi schema object
-      headers: // Joi schema object
-      200: // Joi schema object
-      503: // Joi schema object
+      query: // Joi schema definition
+      body: // Joi schema definition
+      params: // Joi schema definition
+      headers: // Joi schema definition
+      schema: // Compiled Joi schema object
+      200: // Joi schema definition
+      503: // Joi schema definition
       .....
       config: {
         denyUnknown: [],
@@ -61,13 +64,14 @@ import validate, { Joi } from ('koa-router-joi-validation');
 
 ## The object contains the next keys:
 
-| Key      |       Type        | Validates          | Note                                                                                     |
-| -------- | :---------------: | ------------------ | ---------------------------------------------------------------------------------------- |
-| query    | Joi Schema Object | `ctx.query`        |                                                                                          |
-| params   | Joi Schema Object | `ctx.params`       |                                                                                          |
-| headers  | Joi Schema Object | `ctx.headers`      |                                                                                          |
-| body     | Joi Schema Object | `ctx.request.body` | ⚠️ use a body parser e.g. [koa-bodyparser](https://www.npmjs.com/package/koa-bodyparser) |
-| 200..503 | Joi SchemaObject  | `ctx.body`         | when `ctx.status` === 200..503                                                           |
+| Key      |       Type            | Validates          | Note                                                                                     |
+| -------- | :-------------------: | ------------------ | ---------------------------------------------------------------------------------------- |
+| query    | Joi Schema definition | `ctx.query`        |                                                                                          |
+| params   | Joi Schema definition | `ctx.params`       |                                                                                          |
+| headers  | Joi Schema definition | `ctx.headers`      |                                                                                          |
+| body     | Joi Schema definition | `ctx.request.body` | ⚠️ use a body parser e.g. [koa-bodyparser](https://www.npmjs.com/package/koa-bodyparser) |
+| schema     | Compiled Joi Schema Object | `ctx.query, ctx.params, ctx.headers, ctx.request.body` |                |
+| 200..503 | Joi Schema definition | `ctx.body`         | when `ctx.status` === 200..503                                                           |
 | config   |      Object       |                    | Use it to change the validator behavior:                                                 |
 
 ## `config`
@@ -118,6 +122,8 @@ import validate, { Joi } from ('koa-router-joi-validation');
 
 # Example
 
+Simple validation
+
 ```javascript
 import Koa from "koa";
 import Router from "@koa/router";
@@ -143,6 +149,46 @@ router.get(
       200: {
         succuss: Joi.bool()
       }
+    }),
+    async (ctx, next) => {
+      ctx.body = {
+        succuss: true
+      };
+      await next();
+    }
+  );
+
+app.use(router.routes());
+```
+
+Validation using <b>schema</b>
+
+```javascript
+import Koa from "koa";
+import Router from "@koa/router";
+import validate, { Joi } from ('koa-router-joi-validation');
+
+const app = new Koa();
+const router = new Router()
+
+router.get(
+    "/hello/:id",
+    validate({
+      schema: Joi.alternatives().try(
+        Joi.object({
+          query: Joi.object({
+            q1: Joi.boolean().required()
+          })
+        }).unknown(true),
+        Joi.object({
+          query: Joi.object({
+            q2: Joi.boolean()
+          }),
+          body: Joi.object({
+            id: Joi.string().required()
+          }).required()
+        }).unknown(true)
+      )
     }),
     async (ctx, next) => {
       ctx.body = {
