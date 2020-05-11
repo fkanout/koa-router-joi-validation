@@ -12,10 +12,10 @@ const alternativeValidation = async (alternate, schema, values, config) => {
         alternate,
         Joi.alternatives()
           .try({
-            ...schema,
+            ...schema
           })
           .validateAsync(values[v], {
-            allowUnknown: !config.denyUnknown.includes(v),
+            allowUnknown: !config.denyUnknown.includes(v)
           })
       );
       return; // returning after first validation succeed
@@ -39,12 +39,15 @@ const handleErrorWithSource = async (source, fn) => {
   try {
     await fn;
   } catch (error) {
+    if (source === 'schema') {
+      error.message = error.details[0].context.message;
+    }
     error.source = source;
     throw error;
   }
 };
-export default (inputs) => {
-  const { query, params, body, headers, config } = inputs;
+export default inputs => {
+  const { query, params, body, headers, schema, config } = inputs;
 
   if (
     config !== undefined &&
@@ -61,12 +64,16 @@ export default (inputs) => {
     throw { message: `Config's denyUnknown option should be an array` };
   }
 
+  if (schema && !Joi.isSchema(schema)) {
+    throw { message: `Schema should be a Joi object` };
+  }
+
   const _config = {
     denyUnknown: [],
     httpErrorCode: 400,
     nextOnError: false,
     alternate: [],
-    ...config,
+    ...config
   };
 
   return async (ctx, next) => {
@@ -94,6 +101,18 @@ export default (inputs) => {
     }
 
     try {
+      if (schema) {
+        await handleErrorWithSource(
+          "schema",
+          schema.validateAsync({
+            query: ctx.query,
+            body: ctx.request.body,
+            params: ctx.params,
+            headers: ctx.headers
+          })
+        );
+      }
+
       if (query && !_config.alternate.includes("query")) {
         await handleErrorWithSource(
           "query",
