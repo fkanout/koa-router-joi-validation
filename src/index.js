@@ -72,6 +72,7 @@ export default inputs => {
   const _config = {
     denyUnknown: [],
     httpErrorCode: 400,
+    schema: false,
     nextOnError: false,
     alternate: [],
     ...config
@@ -102,7 +103,7 @@ export default inputs => {
     }
 
     try {
-      if (schema) {
+      if (_config.schema === true && schema) {
         await handleErrorWithSource(
           "schema",
           schema.validateAsync({
@@ -112,57 +113,57 @@ export default inputs => {
             headers: ctx.headers
           })
         );
-      }
+      } else {
+        if (query && !_config.alternate.includes("query")) {
+          await handleErrorWithSource(
+            "query",
+            Joi.object(query)
+              .unknown(!_config.denyUnknown.includes("query"))
+              .validateAsync(ctx.query)
+          );
+        }
 
-      if (query && !_config.alternate.includes("query")) {
-        await handleErrorWithSource(
-          "query",
-          Joi.object(query)
-            .unknown(!_config.denyUnknown.includes("query"))
-            .validateAsync(ctx.query)
-        );
-      }
+        if (params && !_config.alternate.includes("params")) {
+          await handleErrorWithSource(
+            "params",
+            Joi.object(params).validateAsync(ctx.params)
+          );
+        }
 
-      if (params && !_config.alternate.includes("params")) {
-        await handleErrorWithSource(
-          "params",
-          Joi.object(params).validateAsync(ctx.params)
-        );
-      }
+        if (body && !_config.alternate.includes("body")) {
+          await handleErrorWithSource(
+            "body",
+            Joi.object(body)
+              .unknown(!_config.denyUnknown.includes("body"))
+              .validateAsync(ctx.request.body)
+          );
+        }
 
-      if (body && !_config.alternate.includes("body")) {
-        await handleErrorWithSource(
-          "body",
-          Joi.object(body)
-            .unknown(!_config.denyUnknown.includes("body"))
-            .validateAsync(ctx.request.body)
-        );
-      }
+        if (headers && !_config.alternate.includes("headers")) {
+          const headersLowered = Object.keys(headers).reduce(
+            (destination, key) => {
+              destination[key.toLowerCase()] = headers[key];
+              return destination;
+            },
+            {}
+          );
+          await handleErrorWithSource(
+            "headers",
+            Joi.object(headersLowered)
+              .unknown(!_config.denyUnknown.includes("headers"))
+              .validateAsync(ctx.headers)
+          );
+        }
 
-      if (headers && !_config.alternate.includes("headers")) {
-        const headersLowered = Object.keys(headers).reduce(
-          (destination, key) => {
-            destination[key.toLowerCase()] = headers[key];
-            return destination;
-          },
-          {}
-        );
-        await handleErrorWithSource(
-          "headers",
-          Joi.object(headersLowered)
-            .unknown(!_config.denyUnknown.includes("headers"))
-            .validateAsync(ctx.headers)
-        );
-      }
-
-      // validation of alternates
-      if (_config.alternate.length) {
-        await alternativeValidation(
-          _config.alternate,
-          alternateSchema,
-          alternateData,
-          _config
-        );
+        // validation of alternates
+        if (_config.alternate.length) {
+          await alternativeValidation(
+            _config.alternate,
+            alternateSchema,
+            alternateData,
+            _config
+          );
+        }
       }
 
       await next();

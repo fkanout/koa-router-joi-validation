@@ -364,7 +364,29 @@ describe("koa-router-joi-validation", function() {
             query: Joi.object({
               q: Joi.boolean().required()
             })
-          }).unknown(true)
+          }).unknown(true),
+          config: {
+            schema: true
+          }
+        }),
+        async (ctx, next) => {
+          ctx.body = {
+            success: true
+          };
+          await next();
+        }
+      );
+      router.post(
+        "/test/schema/query2",
+        validator({
+          schema: Joi.object({
+            query: Joi.object({
+              q: Joi.boolean().required()
+            })
+          }).unknown(true),
+          config: {
+            schema: false
+          }
         }),
         async (ctx, next) => {
           ctx.body = {
@@ -380,7 +402,10 @@ describe("koa-router-joi-validation", function() {
             body: Joi.object({
               id: Joi.string().required()
             })
-          }).unknown(true)
+          }).unknown(true),
+          config: {
+            schema: true
+          }
         }),
         async (ctx, next) => {
           ctx.body = {
@@ -408,7 +433,10 @@ describe("koa-router-joi-validation", function() {
                   .required()
               }).required()
             }).unknown(true)
-          )
+          ),
+          config: {
+            schema: true
+          }
         }),
         async (ctx, next) => {
           ctx.body = {
@@ -423,6 +451,21 @@ describe("koa-router-joi-validation", function() {
         _server = http.createServer(app.callback());
         _server.listen(3001, () => resolve(_server));
       });
+    });
+
+    it("should not validate schema as config is not correct", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/test/schema/query2?unknown=true",
+        headers: {
+          "x-unknown-header": true,
+          accept: "application/json",
+          "content-type": "application/json"
+        }
+      });
+
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, true);
     });
 
     it("should fail when pass unknown query", async () => {
