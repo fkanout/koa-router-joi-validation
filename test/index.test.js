@@ -354,6 +354,321 @@ describe("koa-router-joi-validation", function() {
     });
   });
 
+  describe("[SCHEMA]", async () => {
+    before(async () => {
+      const router = new Router();
+      router.post(
+        "/test/schema/query",
+        validator({ 
+          schema: Joi.object({
+            query: Joi.object({
+              q: Joi.boolean().required()
+            })
+          }).unknown(true)
+        }),
+        async (ctx, next) => {
+          ctx.body = {
+            success: true
+          };
+          await next();
+        }
+      );
+      router.post(
+        "/test/schema/body",
+        validator({ 
+          schema: Joi.object({
+            body: Joi.object({
+              id: Joi.string().required()
+            })
+          }).unknown(true)
+        }),
+        async (ctx, next) => {
+          ctx.body = {
+            success: true
+          };
+          await next();
+        }
+      );
+      router.post(
+        "/test/schema/complex",
+        validator({ 
+          schema: Joi.alternatives().try(
+            Joi.object({
+              query: Joi.object({
+                q1: Joi.boolean().required()
+              })
+            }).unknown(true),
+            Joi.object({
+              query: Joi.object({
+                q2: Joi.boolean()
+              }),
+              body: Joi.object({
+                ids: Joi.array()
+                  .min(1)
+                  .required(),
+              }).required()
+            }).unknown(true)
+          )
+        }),
+        async (ctx, next) => {
+          ctx.body = {
+            success: true
+          };
+          await next();
+        }
+      );
+
+      app.use(router.routes());
+      server = await new Promise(resolve => {
+        _server = http.createServer(app.callback());
+        _server.listen(3001, () => resolve(_server));
+      });
+    });
+
+    it("should fail when pass unknown query", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/test/schema/query?unknown=true",
+          headers: {
+            "x-unknown-header": true,
+            accept: "application/json",
+            "content-type": "application/json"
+          }
+        });
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, '"query.q" is required');
+      }
+    })
+
+    it("should fail when pass incorrect query", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/test/schema/query?q=notBoolean",
+          headers: {
+            "x-unknown-header": true,
+            accept: "application/json",
+            "content-type": "application/json"
+          }
+        });
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, '"query.q" must be a boolean');
+      }
+    })
+
+    it("should succeed when query is correct", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/test/schema/query?q=true",
+        headers: {
+          "x-unknown-header": true,
+          accept: "application/json",
+          "content-type": "application/json"
+        }
+      });
+
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, true);
+    })
+
+    it("should fail when pass unknown body", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/test/schema/body",
+          data: { unknown: true },
+          headers: {
+            "x-unknown-header": true,
+            accept: "application/json",
+            "content-type": "application/json"
+          }
+        });
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, '"body.id" is required');
+      }
+    })
+
+    it("should fail when pass incorrect body", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/test/schema/body",
+          data: { id: 2 },
+          headers: {
+            "x-unknown-header": true,
+            accept: "application/json",
+            "content-type": "application/json"
+          }
+        });
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, '"body.id" must be a string');
+      }
+    })
+
+    it("should succeed when body is correct", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/test/schema/body",
+        data: { id: 'correctString' },
+        headers: {
+          "x-unknown-header": true,
+          accept: "application/json",
+          "content-type": "application/json"
+        }
+      });
+
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, true);
+    })
+
+    it("should fail when complex schema fails - query case", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/test/schema/complex?unknown=true",
+          headers: {
+            "x-unknown-header": true,
+            accept: "application/json",
+            "content-type": "application/json"
+          }
+        });  
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, '"query.q1" is required. "query.unknown" is not allowed');
+      }
+    })
+
+    it("should fail when complex schema fails - quary and body case", async () => {
+      try {
+        await axios({
+          method: "POST",
+          url: "http://localhost:3001/test/schema/complex?q2=true",
+          data: {
+            unknown: 'data'
+          },
+          headers: {
+            "x-unknown-header": true,
+            accept: "application/json",
+            "content-type": "application/json"
+          }
+        });  
+      } catch (error) {
+        assert.deepEqual(error.response.status, 400);
+        assert.deepEqual(error.response.data, '"query.q1" is required. "body.ids" is required');
+      }
+    })
+
+    it("should succeed when complex schema is correct - query case", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/test/schema/complex?q1=true",
+        headers: {
+          "x-unknown-header": true,
+          accept: "application/json",
+          "content-type": "application/json"
+        }
+      });
+
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, true);
+    })
+
+    it("should succeed when complex schema is correct - query and body case", async () => {
+      const { status, data } = await axios({
+        method: "POST",
+        url: "http://localhost:3001/test/schema/complex?q2=true",
+        data: {
+          ids: ["id1", "id2"]
+        },
+        headers: {
+          "x-unknown-header": true,
+          accept: "application/json",
+          "content-type": "application/json"
+        }
+      });
+
+      assert.deepEqual(status, 200);
+      assert.deepEqual(data.success, true);
+    })
+
+    after(() => {
+      return new Promise(resolve => {
+        server.close(() => resolve());
+      });
+    });
+  });
+
+  describe("[SCHEMA] incorrect initialization", () => {
+    it("Should throw an error if schema is not a compiled joi schema", async () => {
+      try {
+        const router = new Router();
+        router.post(
+          "/schema",
+          validator({
+            schema: {
+              // Plain JS Object - not a compiled joi schema
+            }
+          }),
+          async (ctx, next) => {
+            ctx.body = {
+              success: "true"
+            };
+            await next();
+          }
+        );
+        app.use(bodyParser());
+        app.use(router.routes());
+        server = await new Promise(resolve => {
+          _server = http.createServer(app.callback());
+          _server.listen(3001, () => resolve(_server));
+        });
+      } catch (error) {
+        assert.ok(error);
+        assert.deepEqual(
+          error.message,
+          'Schema should be a Joi object'
+        );
+      }
+    });
+
+    it("Should throw an error if config's denyUnknown is not an array", async () => {
+      try {
+        const router = new Router();
+        router.post(
+          "/config",
+          validator({
+            config: {
+              denyUnknown: "notAnArray"
+            }
+          }),
+          async (ctx, next) => {
+            ctx.body = {
+              success: "true"
+            };
+            await next();
+          }
+        );
+        app.use(bodyParser());
+        app.use(router.routes());
+        server = await new Promise(resolve => {
+          _server = http.createServer(app.callback());
+          _server.listen(3001, () => resolve(_server));
+        });
+      } catch (error) {
+        assert.ok(error);
+        assert.deepEqual(
+          error.message,
+          "Config's denyUnknown option should be an array"
+        );
+      }
+    });
+  });
+
   describe("[CONFIG]", async () => {
     before(async () => {
       const router = new Router();
