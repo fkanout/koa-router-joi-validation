@@ -12,10 +12,10 @@ const alternativeValidation = async (alternate, schema, values, config) => {
         alternate,
         Joi.alternatives()
           .try({
-            ...schema,
+            ...schema
           })
           .validateAsync(values[v], {
-            allowUnknown: !config.denyUnknown.includes(v),
+            allowUnknown: !config.denyUnknown.includes(v)
           })
       );
       return; // returning after first validation succeed
@@ -39,12 +39,16 @@ const handleErrorWithSource = async (source, fn) => {
   try {
     await fn;
   } catch (error) {
+    if (source === "schema") {
+      error.message =
+        error.details[0].context.message || error.details[0].message;
+    }
     error.source = source;
     throw error;
   }
 };
-export default (inputs) => {
-  const { query, params, body, headers, config } = inputs;
+export default inputs => {
+  const { query, params, body, headers, schema, config } = inputs;
 
   if (
     config !== undefined &&
@@ -61,12 +65,17 @@ export default (inputs) => {
     throw { message: `Config's denyUnknown option should be an array` };
   }
 
+  if (schema && !Joi.isSchema(schema)) {
+    throw { message: `Schema should be a Joi object` };
+  }
+
   const _config = {
     denyUnknown: [],
     httpErrorCode: 400,
+    schema: false,
     nextOnError: false,
     alternate: [],
-    ...config,
+    ...config
   };
 
   return async (ctx, next) => {
@@ -94,55 +103,67 @@ export default (inputs) => {
     }
 
     try {
-      if (query && !_config.alternate.includes("query")) {
+      if (_config.schema === true && schema) {
         await handleErrorWithSource(
-          "query",
-          Joi.object(query)
-            .unknown(!_config.denyUnknown.includes("query"))
-            .validateAsync(ctx.query)
+          "schema",
+          schema.validateAsync({
+            query: ctx.query,
+            body: ctx.request.body,
+            params: ctx.params,
+            headers: ctx.headers
+          })
         );
-      }
+      } else {
+        if (query && !_config.alternate.includes("query")) {
+          await handleErrorWithSource(
+            "query",
+            Joi.object(query)
+              .unknown(!_config.denyUnknown.includes("query"))
+              .validateAsync(ctx.query)
+          );
+        }
 
-      if (params && !_config.alternate.includes("params")) {
-        await handleErrorWithSource(
-          "params",
-          Joi.object(params).validateAsync(ctx.params)
-        );
-      }
+        if (params && !_config.alternate.includes("params")) {
+          await handleErrorWithSource(
+            "params",
+            Joi.object(params).validateAsync(ctx.params)
+          );
+        }
 
-      if (body && !_config.alternate.includes("body")) {
-        await handleErrorWithSource(
-          "body",
-          Joi.object(body)
-            .unknown(!_config.denyUnknown.includes("body"))
-            .validateAsync(ctx.request.body)
-        );
-      }
+        if (body && !_config.alternate.includes("body")) {
+          await handleErrorWithSource(
+            "body",
+            Joi.object(body)
+              .unknown(!_config.denyUnknown.includes("body"))
+              .validateAsync(ctx.request.body)
+          );
+        }
 
-      if (headers && !_config.alternate.includes("headers")) {
-        const headersLowered = Object.keys(headers).reduce(
-          (destination, key) => {
-            destination[key.toLowerCase()] = headers[key];
-            return destination;
-          },
-          {}
-        );
-        await handleErrorWithSource(
-          "headers",
-          Joi.object(headersLowered)
-            .unknown(!_config.denyUnknown.includes("headers"))
-            .validateAsync(ctx.headers)
-        );
-      }
+        if (headers && !_config.alternate.includes("headers")) {
+          const headersLowered = Object.keys(headers).reduce(
+            (destination, key) => {
+              destination[key.toLowerCase()] = headers[key];
+              return destination;
+            },
+            {}
+          );
+          await handleErrorWithSource(
+            "headers",
+            Joi.object(headersLowered)
+              .unknown(!_config.denyUnknown.includes("headers"))
+              .validateAsync(ctx.headers)
+          );
+        }
 
-      // validation of alternates
-      if (_config.alternate.length) {
-        await alternativeValidation(
-          _config.alternate,
-          alternateSchema,
-          alternateData,
-          _config
-        );
+        // validation of alternates
+        if (_config.alternate.length) {
+          await alternativeValidation(
+            _config.alternate,
+            alternateSchema,
+            alternateData,
+            _config
+          );
+        }
       }
 
       await next();
