@@ -359,7 +359,7 @@ describe("koa-router-joi-validation", function() {
       const router = new Router();
       router.post(
         "/test/schema/query",
-        validator({ 
+        validator({
           schema: Joi.object({
             query: Joi.object({
               q: Joi.boolean().required()
@@ -375,7 +375,7 @@ describe("koa-router-joi-validation", function() {
       );
       router.post(
         "/test/schema/body",
-        validator({ 
+        validator({
           schema: Joi.object({
             body: Joi.object({
               id: Joi.string().required()
@@ -391,7 +391,7 @@ describe("koa-router-joi-validation", function() {
       );
       router.post(
         "/test/schema/complex",
-        validator({ 
+        validator({
           schema: Joi.alternatives().try(
             Joi.object({
               query: Joi.object({
@@ -405,7 +405,7 @@ describe("koa-router-joi-validation", function() {
               body: Joi.object({
                 ids: Joi.array()
                   .min(1)
-                  .required(),
+                  .required()
               }).required()
             }).unknown(true)
           )
@@ -440,7 +440,7 @@ describe("koa-router-joi-validation", function() {
         assert.deepEqual(error.response.status, 400);
         assert.deepEqual(error.response.data, '"query.q" is required');
       }
-    })
+    });
 
     it("should fail when pass incorrect query", async () => {
       try {
@@ -457,7 +457,7 @@ describe("koa-router-joi-validation", function() {
         assert.deepEqual(error.response.status, 400);
         assert.deepEqual(error.response.data, '"query.q" must be a boolean');
       }
-    })
+    });
 
     it("should succeed when query is correct", async () => {
       const { status, data } = await axios({
@@ -472,7 +472,7 @@ describe("koa-router-joi-validation", function() {
 
       assert.deepEqual(status, 200);
       assert.deepEqual(data.success, true);
-    })
+    });
 
     it("should fail when pass unknown body", async () => {
       try {
@@ -490,7 +490,7 @@ describe("koa-router-joi-validation", function() {
         assert.deepEqual(error.response.status, 400);
         assert.deepEqual(error.response.data, '"body.id" is required');
       }
-    })
+    });
 
     it("should fail when pass incorrect body", async () => {
       try {
@@ -508,13 +508,13 @@ describe("koa-router-joi-validation", function() {
         assert.deepEqual(error.response.status, 400);
         assert.deepEqual(error.response.data, '"body.id" must be a string');
       }
-    })
+    });
 
     it("should succeed when body is correct", async () => {
       const { status, data } = await axios({
         method: "POST",
         url: "http://localhost:3001/test/schema/body",
-        data: { id: 'correctString' },
+        data: { id: "correctString" },
         headers: {
           "x-unknown-header": true,
           accept: "application/json",
@@ -524,7 +524,7 @@ describe("koa-router-joi-validation", function() {
 
       assert.deepEqual(status, 200);
       assert.deepEqual(data.success, true);
-    })
+    });
 
     it("should fail when complex schema fails - query case", async () => {
       try {
@@ -536,12 +536,15 @@ describe("koa-router-joi-validation", function() {
             accept: "application/json",
             "content-type": "application/json"
           }
-        });  
+        });
       } catch (error) {
         assert.deepEqual(error.response.status, 400);
-        assert.deepEqual(error.response.data, '"query.q1" is required. "query.unknown" is not allowed');
+        assert.deepEqual(
+          error.response.data,
+          '"query.q1" is required. "query.unknown" is not allowed'
+        );
       }
-    })
+    });
 
     it("should fail when complex schema fails - quary and body case", async () => {
       try {
@@ -549,19 +552,22 @@ describe("koa-router-joi-validation", function() {
           method: "POST",
           url: "http://localhost:3001/test/schema/complex?q2=true",
           data: {
-            unknown: 'data'
+            unknown: "data"
           },
           headers: {
             "x-unknown-header": true,
             accept: "application/json",
             "content-type": "application/json"
           }
-        });  
+        });
       } catch (error) {
         assert.deepEqual(error.response.status, 400);
-        assert.deepEqual(error.response.data, '"query.q1" is required. "body.ids" is required');
+        assert.deepEqual(
+          error.response.data,
+          '"query.q1" is required. "body.ids" is required'
+        );
       }
-    })
+    });
 
     it("should succeed when complex schema is correct - query case", async () => {
       const { status, data } = await axios({
@@ -576,7 +582,7 @@ describe("koa-router-joi-validation", function() {
 
       assert.deepEqual(status, 200);
       assert.deepEqual(data.success, true);
-    })
+    });
 
     it("should succeed when complex schema is correct - query and body case", async () => {
       const { status, data } = await axios({
@@ -594,7 +600,7 @@ describe("koa-router-joi-validation", function() {
 
       assert.deepEqual(status, 200);
       assert.deepEqual(data.success, true);
-    })
+    });
 
     after(() => {
       return new Promise(resolve => {
@@ -629,10 +635,7 @@ describe("koa-router-joi-validation", function() {
         });
       } catch (error) {
         assert.ok(error);
-        assert.deepEqual(
-          error.message,
-          'Schema should be a Joi object'
-        );
+        assert.deepEqual(error.message, "Schema should be a Joi object");
       }
     });
 

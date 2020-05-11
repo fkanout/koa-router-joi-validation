@@ -39,8 +39,9 @@ const handleErrorWithSource = async (source, fn) => {
   try {
     await fn;
   } catch (error) {
-    if (source === 'schema') {
-      error.message = error.details[0].context.message || error.details[0].message;
+    if (source === "schema") {
+      error.message =
+        error.details[0].context.message || error.details[0].message;
     }
     error.source = source;
     throw error;
