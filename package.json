@@ -41,7 +41,7 @@
     "@babel/preset-env": "^7.7.7",
     "@koa/router": "^8.0.5",
     "axios": "^0.19.0",
-    "got": "^10.2.1",
+    "got": "^11.8.5",
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.2.1",
     "mocha": "^7.0.0",
